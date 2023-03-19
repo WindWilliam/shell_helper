@@ -45,7 +45,7 @@ function getGrepRes() {
     local num=$(echo "$kid" | wc -l)
     # 设置获取的
     if [ $num -ne 1 ]; then
-        read -p "请选择对应内容的行号：" line
+        read -p "请选择对应的行号：" line
         echo
     fi
     # 此处必须是单引号，注意不要被替换
@@ -117,16 +117,23 @@ function lg() {
     # 此处三种格式，s3m，t100，k8s默认参数；不传则默认为--tail=100
     if [ -z "$extra" ]; then
         local params="--tail=100"
+        echo "默认：$params"
+        echo
         kubectl logs $res $ns $params
-    elif [[ "$extra" = ^t[0-9]+$ ]]; then
+    elif [[ "$extra" =~ ^t[0-9]+$ ]]; then
         local params=${extra/#t/"--tail="}
+        echo "tail参数: $params"
+        echo
         kubectl logs $res $ns $params
-    elif [[ "$extra" = ^s[0-9]+[a-z]$ ]]; then
+    elif [[ "$extra" =~ ^s[0-9]+[a-z]$ ]]; then
         local params=${extra/#s/"--since="}
+        echo
+        echo "since参数: $params"
         kubectl logs $res $ns $params
     else
         shift
-        echo "$*"
+        echo "其他： $*"
+        echo
         kubectl logs $res $ns $@
     fi
 }
@@ -244,8 +251,6 @@ case "$1" in
     origin $@
     ;;
 *)
-    shift
-    # 移除$1，传递剩余参数
     dft $*
     ;;
 esac
