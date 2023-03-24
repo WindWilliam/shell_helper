@@ -3,9 +3,9 @@
 ###
 # @Author: zf
 # @Date: 2022-09-18 23:28:55
-# @LastEditTime: 2023-03-23 23:01:54
+# @LastEditTime: 2023-03-24 23:53:08
 # @LastEditors: zf
-# @Description: decompress gz file that starts with special name
+# @Description: decompress gz file which starts with special name
 ###
 
 # 解压到文件夹路径
