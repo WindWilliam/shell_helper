@@ -79,7 +79,7 @@ function setNs() {
 }
 
 # 1.重启（更新）功能  ud nginx.yaml
-# 根据名词你过来判断是pod还是svc
+# 根据名字来判断是pod还是svc（名字有svc，则显示svc)
 function ud() {
     local yaml=$1
     # 文件是否存在
@@ -91,8 +91,10 @@ function ud() {
         echo "开始更新 $yaml"
         kubectl delete -f $yaml
         sleep 3s
+
         kubectl apply -f $yaml
         sleep 3s
+
         echo "完成更新 $yaml"
         local name=${yaml%.*}
         # 此处区分一下pod和svc
