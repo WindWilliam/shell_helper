@@ -2,11 +2,11 @@
 
 # @Author: zf
 # @Date: 2022-01-13 14:19:45
-# @LastEditTime: 2022-10-19 22:02:22
+# @LastEditTime: 2023-03-25 16:24:00
 # @LastEditors: zf
 # @Description: k8s通用服务简化
 
-# 0.0 通用变量方法 开始
+# 0.0 通用变量方法------------------开始
 # k8s的命名空间
 ns=""
 # 过滤结果
@@ -60,9 +60,9 @@ function getGrepRes() {
         echo
     fi
 }
-# 0.0 通用方法 结束
+# 0.0 通用方法------------------结束
 
-# 功能主体方法---开始
+# 主体方法------------------开始
 
 # 0.设置命名空间  ns pie-engine-ai
 # 当前shell有效，故需要用source执行命令
@@ -83,7 +83,7 @@ function setNs() {
 function ud() {
     local yaml=$1
     # 文件是否存在
-    if [[ ! -f "$yaml" ]]; then
+    if [ ! -f "$yaml" ]; then
         echo "${yaml}文件不存在"
         echo
         exit 1
@@ -95,11 +95,13 @@ function ud() {
         sleep 3s
         echo "完成更新 $yaml"
         local name=${yaml%.*}
-        # echo name为 $name
         # 此处区分一下pod和svc
-        if [[ $name == *"svc"* ]]; then
+        if [[ $name == *svc* ]]; then
+            name=${name//-svc/}
+            echo "svc为$name 的结果："
             kubectl get svc $ns | grep $name
         else
+            echo "pod为$name 的结果："
             kubectl get pod $ns | grep $name
         fi
     fi
@@ -120,12 +122,12 @@ function lg() {
         echo "默认：$params"
         echo
         kubectl logs $res $ns $params
-    elif [[ "$extra" =~ ^t[0-9]+$ ]]; then
+    elif [[ $extra =~ ^t[0-9]+$ ]]; then
         local params=${extra/#t/"--tail="}
         echo "tail参数: $params"
         echo
         kubectl logs $res $ns $params
-    elif [[ "$extra" =~ ^s[0-9]+[a-z]$ ]]; then
+    elif [[ $extra =~ ^s[0-9]+[a-z]$ ]]; then
         local params=${extra/#s/"--since="}
         echo
         echo "since参数: $params"
@@ -202,13 +204,13 @@ function dft() {
     echo "默认追加 $@"
     kubectl $ns $@
 }
-# 功能主体方法---结束
+# 主体方法------------------结束
 
-# 功能主体---
+# 功能主体------------------
 getNs
 
-echo "========开始========"
 echo
+echo "========开始========"
 echo "当前命名空间为 $ns"
 echo
 
@@ -220,7 +222,7 @@ case "$1" in
     echo "更新后的命名空间为 $ns"
     ;;
 "ud")
-    update $2
+    ud $2
     ;;
 "lg")
     shift
@@ -255,6 +257,6 @@ case "$1" in
     ;;
 esac
 
-echo
 echo "========结束========"
-# 功能主体---
+echo
+# 功能主体------------------
