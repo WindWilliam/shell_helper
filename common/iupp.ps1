@@ -6,8 +6,12 @@ $name = (ls * |where {$_.Name -like "pnpm*"} | sort LastWriteTime -desc | select
 # 是否存在pnmp安装包
 if ($null -eq $name) {
     Write-Error "未找到pnpm的安装包，尝试在线安装"
-
-    iwr https://get.pnpm.io/install.ps1 -useb | iex
+    try {
+        iwr https://get.pnpm.io/install.ps1 -useb | iex
+    }
+    catch {
+        Write-Warning "在线安装失败，请尝试先下载pnpm的安装包，再执行此命令进行安装/更新。"
+    }
 } else {
     if ("pnpm.exe" -eq $name) {
         # 安装/更新 ---- pnpm.exe是全局变量，故此处需要注意使用相对路径
