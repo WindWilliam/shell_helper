@@ -1,5 +1,6 @@
-# pnpm的安装/更新命令
-# 单纯安装，需提前下载pnpm的安装包，才能进行安装/更新
+# pnpm的安装/更新命令 install/update pnpm
+# 支持 本地安装包 和 在线 两种方式进行安装/更新
+
 
 # 获取当前目录下最新的pnmp安装包
 $name = (Get-ChildItem -Include pnpm* -Name | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 1)

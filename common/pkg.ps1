@@ -1,4 +1,6 @@
-# tar 归档压缩命令
+# 打包命令 package
+# 通过tar来归档压缩
+
 
 # 待压缩文件夹
 $folder = "dist"
