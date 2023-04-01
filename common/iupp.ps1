@@ -2,7 +2,7 @@
 # 单纯安装，需提前下载pnpm的安装包，才能进行安装/更新
 
 # 获取当前目录下最新的pnmp安装包
-$name = (ls * |where {$_.Name -like "pnpm*"} | sort LastWriteTime -desc | select -f 1).name
+$name = (Get-ChildItem -Include pnpm* -Name | Sort-Object -Property LastWriteTime -Descending | Select-Object -First 1)
 # 是否存在pnmp安装包
 if ($null -eq $name) {
     Write-Error "未找到pnpm的安装包，尝试在线安装"
