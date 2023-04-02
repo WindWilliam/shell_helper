@@ -1,4 +1,4 @@
-# 添加环境变量命令 get/set env
+# 添加环境变量命令 add env
 
 #  环境变量名
 $name = "ZF"
