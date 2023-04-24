@@ -29,7 +29,7 @@ if ( ($null -ne $common) -and ($common -ne $name) ) {
     $commonNow = [Environment]::GetEnvironmentVariable($common, $target)
     $nameIn = "%$name%"
     # 是否已存在Path中
-    if ( $now.contains($nameIn) ) {
+    if ( $commonNow.contains($nameIn) ) {
         Write-Host "$name 已存在用户环境变量Path中！"
     } else {
         [Environment]::SetEnvironmentVariable($common, "$nameIn;$commonNow", $target)
