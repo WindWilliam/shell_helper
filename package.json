@@ -1,7 +1,7 @@
 {
   "scripts": {
     "prepare": "husky install",
-    "test": "echo 1"
+    "test": "echo success！"
   },
   "devDependencies": {
     "husky": "^8.0.3"

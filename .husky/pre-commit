@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-pp test
+pnpm test
 
-exit 1 # Commit will be aborted
+# exit 1 # Commit will be aborted
