@@ -3,14 +3,16 @@
 <# 获取输入值 #>
 function GetInput {
     param (
-        [string]$prompt
+        [string]$prompt,
+        [boolean]$check = $true
     )
 
     $val = Read-Host $prompt
-    if ($val -eq "") {
+    if ($val -eq "" -and $check) {
         Write-Host "输入不能为空，请重新输入！" -ForegroundColor Red
         return GetInput -prompt $prompt
-    } else {
+    }
+    else {
         return $val
     }
 }
@@ -25,24 +27,27 @@ function GetAliasNow {
     # 获取当前别名配置信息
     $alias = Get-Content -Path $profile | Where-Object { $_ -match "^Set-Alias -Name $name " }
     if (!$alias) {
-        if($keep) {
+        if ($keep) {
             return $false
-        } else {
+        }
+        else {
             # 直接退出
-            Write-Host "`n全局别名 $name 不存在！" -ForegroundColor Red
+            Write-Host "`n别名 $name 不存在！" -ForegroundColor Red
             exit(1)
         }
-    } else {
+    }
+    else {
         # 取出别名配置信息
         $val = $alias -replace "^Set-Alias -Name $name ", ""
         # $val = $val -replace "`n", ""
         # 输出当前别名配置信息
-        if($keep) {
+        if ($keep) {
             Write-Warning "当前别名 $name 已配置为： $val ！"
-        } else {
+            return $true
+        }
+        else {
             Write-Host "`n当前别名 $name 的配置信息： $val "
         }
-        return $alias
     }
 }
 
@@ -62,13 +67,15 @@ function CheckAliasExists {
             Write-Warning "$kv 已存在系统默认配置中！"
         }
         return $true
-    } else {
+    }
+    else {
         $cmd = $(Get-Command $name -ErrorAction SilentlyContinue)
         if ($cmd) {
             $kv = $cmd.Definition
             Write-Warning "当前别名 $name 与系统命令 $kv 冲突！"
             return $true
-        } else {
+        }
+        else {
             return $false
         }
     }
@@ -81,22 +88,18 @@ function GetAliasName {
     )
 
     $name = GetInput -prompt "请输入别名的名称，例如：pp"
-    if(!$check) {
+    if (!$check) {
         return $name
-    } else {
+    }
+    else {
         $ck = CheckAliasExists -name $name
         if ($ck) {
             return GetAliasName -check $true
-        } else {
+        }
+        else {
             return $name
         }
     }
-}
-
-<# 获取别名的值 #>
-function GetAliasValue {
-    $val = GetInput -prompt "请输入别名对应的值，例如：pnpm"
-    return $val
 }
 
 <# 添加别名 #>
@@ -106,7 +109,7 @@ function AddAlias {
     # 添加别名
     "# 添加别名 $name $val 于$(Get-Date -Format "yyyy-MM-dd HH:mm:ss")`nSet-Alias -Name $name $val`n" | Out-File -Append $profile
 
-    Write-Host "`n全局别名 $name 添加成功！" -ForegroundColor Green
+    Write-Host "`n别名 $name 添加成功！" -ForegroundColor Green
 }
 
 <# 删除别名 #>
@@ -117,7 +120,7 @@ function DeleteAlias {
     # 获取当前别名配置信息
     GetAliasNow -name $name
     # 别名不存在会自动退出，故此处无需判断
-    $doDelete =  GetInput -prompt "是否要删除别名 $name ？(y/n)"
+    $doDelete = GetInput -prompt "是否要删除别名 $name ？(y/n)" -check $false
     if ($doDelete.StartsWith("n") -or $doDelete.StartsWith("N")) {
         Write-Host "`n取消删除别名 $name ！" -ForegroundColor Yellow
         # 直接退出
@@ -129,7 +132,7 @@ function DeleteAlias {
     # $updated = $now | Where-Object { $_ -notmatch " $name " }
     Set-Content -Path $profile -Value $updated
 
-    Write-Host "`n全局别名 $name 删除成功！" -ForegroundColor Green
+    Write-Host "`n别名 $name 删除成功！" -ForegroundColor Green
 }
 
 <# 注释别名 #>
@@ -140,32 +143,85 @@ function CommentAlias {
     # 获取当前别名配置信息
     GetAliasNow -name $name
     # 别名不存在会自动退出，故此处无需判断
-    $doComment =  GetInput -prompt "是否要注释别名 $name ？(y/n)"
+    $doComment = GetInput -prompt "是否要注释别名 $name ？(y/n)" -check $false
     if ($doComment.StartsWith("n") -or $doComment.StartsWith("N")) {
         Write-Host "`n取消注释别名 $name ！" -ForegroundColor Yellow
         # 直接退出
         exit(0)
     }
-    $updated = $now | ForEach-Object { if ($_ -match "^Set-Alias -Name $name ") { "# $_" } else { $_ } }
+    $updated = $now | ForEach-Object { 
+        if ($_ -match "^Set-Alias -Name $name ") {
+            "# $_" 
+        }
+        else { 
+            $_ 
+        }
+    }
     Set-Content -Path $profile -Value $updated
 
-    Write-Host "`n全局别名 $name 注释成功！" -ForegroundColor Green
+    Write-Host "`n别名 $name 注释成功！" -ForegroundColor Green
+}
+
+<# 取消注释别名 #>
+function UndoCommentAlias {
+    
+    $name = GetAliasName
+    $reg = "^# Set-Alias -Name $name "
+    # 获取当前别名配置信息
+    $now = Get-Content -Path $profile
+    $alias = $now | Where-Object { $_ -match "$reg" }
+    if (!$alias) {
+        # 直接退出
+        Write-Host "`n注释的别名 $name 不存在！" -ForegroundColor Red
+        exit(1)
+    }
+    else {
+        # 取出别名配置信息
+        $val = $alias -replace "$reg", ""
+        # 输出当前别名配置信息
+        Write-Host "`n注释的别名 $name 的配置信息： $val "
+
+        $doComment = GetInput -prompt "是否要取消注释别名 $name ？(y/n)" -check $false
+        if ($doComment.StartsWith("n") -or $doComment.StartsWith("N")) {
+            Write-Host "`n保持注释别名 $name ！" -ForegroundColor Yellow
+            # 直接退出
+            exit(0)
+        }
+        $updated = $now | ForEach-Object {
+            if ($_ -match "$reg") {
+                "$_" -replace "^#\s*", "" 
+            }
+            else { 
+                $_ 
+            }
+        }
+        Set-Content -Path $profile -Value $updated
+    
+        Write-Host "`n别名 $name 取消注释成功！" -ForegroundColor Green
+    }
 }
 
 
 <# ======开始====== #>
-Write-Host "欢迎使用PowerShell全局别名管理工具！" -ForegroundColor Green
+Write-Host "欢迎使用PowerShell别名管理工具！" -ForegroundColor Green
 Write-Host "注意：别名不区分大小写。`n" -ForegroundColor Yellow
 
 # 根据输入参数选择处理模式--默认为add
 switch ($args[0]) {
     "d" {
+        Write-Host "当前为删除模式！" -ForegroundColor Green
         DeleteAlias
     }
     "c" {
+        Write-Host "当前为注释模式！" -ForegroundColor Green
         CommentAlias
     }
+    "r" {
+        Write-Host "当前为取消注释模式！" -ForegroundColor Green
+        UndoCommentAlias
+    }
     default {
+        Write-Host "当前为添加模式！" -ForegroundColor Green
         AddAlias
     }
 }
