@@ -71,7 +71,7 @@ function CheckAliasExists {
     else {
         $cmd = $(Get-Command $name -ErrorAction SilentlyContinue)
         if ($cmd) {
-            $kv = $cmd.Definition
+            $kv = $cmd.Source
             Write-Warning "当前别名 $name 与系统命令 $kv 冲突！"
             return $true
         }
