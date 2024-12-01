@@ -1,5 +1,22 @@
-# pnpm的安装/更新命令 install/update pnpm
-# 支持 本地安装包 和 在线 两种方式进行安装/更新
+<#
+.SYNOPSIS
+    pnpm的安装与更新
+
+.DESCRIPTION
+    pnpm的安装与更新命令，支持 本地安装包 和 在线 两种方式进行安装或者是更新。
+
+.EXAMPLE
+    iupp.ps1
+    # 本地安装/更新pnpm
+
+.EXAMPLE
+    iupp.ps1 o
+    # 在线安装/更新pnpm
+
+.NOTES
+    作者: zf
+    创建日期: 2022-09-18
+#>
 
 <# 获取当前pnpm的版本 #>
 function GetPnpmVersion {
@@ -43,6 +60,21 @@ function BackupPnpm {
     }
 }
 
+<# 添加pnpm的别名 #>
+function AddShortAlias {
+    # 是否存在addAlias.ps1？
+    if ( Get-Command addAlias.ps1 -ErrorAction SilentlyContinue ) {
+        # 是否需要添加别名？
+        $need = Read-Host "是否需要设置pnpm的别名（建议为pp或者是pn）？(y/n)"
+        if ($need -eq "y" -or $need -eq "Y") {
+            addAlias.ps1 -Value pnpm
+        }
+    }
+    else {
+        Write-Host "建议添加pp或是pn的别名，来代替pnpm命令！"
+    }
+}
+
 <# 安装成功后的提示 #>
 function SuccessMessage {
     param (
@@ -61,7 +93,7 @@ function SuccessMessage {
     }
     else {
         Write-Host "`n已成功安装pnpm！" -ForegroundColor Green
-        Write-Host "建议添加pp或是pn的别名，来代替pnpm命令！"
+        AddShortAlias
         Write-Host "请重启PowerShell后执行 pnpm -v 验证是否安装成功！" -ForegroundColor Green
     }
 }
@@ -181,7 +213,6 @@ function InstallLocal {
 
 <# ======开始====== #>
 Write-Host "欢迎使用pnpm安装/更新工具！" -ForegroundColor Green
-
 # 根据输入参数选择处理模式--默认为本地安装/更新
 switch ($args[0]) {
     "o" {

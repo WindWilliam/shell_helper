@@ -17,18 +17,23 @@
 
 .EXAMPLE
     addAlias.ps1 ll Get-ChildItem
+    # 添加别名 ll 指向 Get-ChildItem
 
 .EXAMPLE
     addAlias.ps1 -Name ll -Value Get-ChildItem -Mode add
+    # 添加别名 ll 指向 Get-ChildItem
     
 .EXAMPLE
     addAlias.ps1 -Name ll -Mode cm
+    # 注释别名 ll
     
 .EXAMPLE
     addAlias.ps1 -Name ll -Mode ucm
+    # 取消注释别名 ll
     
 .EXAMPLE
     addAlias.ps1 -Name ll -Mode rm
+    # 删除别名 ll
 
 .NOTES
     作者: zf
